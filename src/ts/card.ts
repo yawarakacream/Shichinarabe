@@ -1,3 +1,6 @@
+import Board from "./board";
+import * as utility from "./utility";
+
 export const basicCardTypes = ["DIAMOND", "HEART", "SPADE", "CLUB"] as const;
 export type BasicCardType = typeof basicCardTypes[number];
 
@@ -33,7 +36,7 @@ export class BasicCard extends Card {
 	readonly type: BasicCardType;
 	readonly number: CardNumber;
 
-	private constructor(type: BasicCardType, number: CardNumber) {
+	constructor(type: BasicCardType, number: CardNumber) {
 		super(type + "$" + number, type.charAt(0) + number);
 		this.type = type;
 		this.number = number;
@@ -48,17 +51,26 @@ export class BasicCard extends Card {
 	}
 
 	static newAll(): Map<BasicCardType, BasicCard[]> {
-		return new Map(basicCardTypes.map(t => [t, cardNumbers.map((i) => new BasicCard(t, i))]));
-	}
-
-	static get(type: BasicCardType, number: number): BasicCard {
-		return basicCards.get(type)[number];
+		return ;
 	}
 }
 
-import * as utility from "./utility";
-import * as config from "./config";
+export class CardContainer {
+	private readonly jokers: Joker[];
+	private readonly basicCards: Map<BasicCardType, BasicCard[]>;
+	private readonly cards: Card[];
 
-const joker = utility.newArray(config.jorkers, _ => new Joker());
-const basicCards = BasicCard.newAll();
-export const cards = [...joker, ...Array.from(basicCards.values()).flat()];
+	constructor(board: Board) {
+		this.jokers = utility.newArray(board.getSettings().jorkers, _ => new Joker());
+		this.basicCards = new Map(basicCardTypes.map(t => [t, cardNumbers.map((i) => new BasicCard(t, i))]));
+		this.cards = [...this.jokers, ...Array.from(this.basicCards.values()).flat()]
+	}
+
+	getBasicCard(type: BasicCardType, number: number) {
+		return this.basicCards.get(type)[number];
+	}
+
+	getAllCards() {
+		return this.cards;
+	}
+}

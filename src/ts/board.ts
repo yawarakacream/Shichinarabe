@@ -1,10 +1,13 @@
-import { BasicCardType, basicCardTypes, CardNumber, cardNumbers, Card, BasicCard, Joker, cards } from "./card";
+import { BasicCardType, basicCardTypes, CardNumber, cardNumbers, Card, BasicCard, Joker, CardContainer } from "./card";
 import Row from "./row";
 import { Player, Human, Computer} from "./player";
-import * as config from "./config";
+import Settings from "./settings";
 import * as utility from "./utility";
 
 export default class Board {
+	private readonly settings: Settings;
+	private readonly cardContainer: CardContainer;
+
 	private readonly stocks: Card[];
 	private readonly rows: Map<BasicCardType, Row>;
 
@@ -14,11 +17,16 @@ export default class Board {
 	private ranks: (number | undefined)[];
 	private lastRank: number;
 
-	constructor(humans: number, computers: number) {
-		this.stocks = utility.shuffleArray([...cards].filter(c => !config.initialCards.some(d => BasicCard.get(d.type, d.index) === c)));
+	constructor(settings: Settings) {
+		this.settings = settings;
+		this.cardContainer = new CardContainer(this);
+
+		this.stocks = utility.shuffleArray([...this.cardContainer.getAllCards()].filter(c => !this.getSettings().initialCards.some(d => this.cardContainer.getBasicCard(d.type, d.index) === c)));
 		this.rows = new Map(basicCardTypes.map((t) => [t, new Row(t)]));
 
-		this.players = [...utility.newArray(humans, _ => new Human(this)), ...utility.newArray(computers, _ => new Computer(this))];
+		this.players = utility.newArray(this.getSettings().computers, _ => new Computer(this));
+		if (this.getSettings().human)
+			this.players = [new Human(this), ...this.players];
 
 		this.turn = 0;
 		this.ranks = new Array(this.players.length).fill(undefined);
@@ -27,8 +35,8 @@ export default class Board {
 		for (let i = 0; i < this.stocks.length; i++)
 			this.getPlayer(i % this.players.length).addCardIntoHands(this.stocks[i]);
 		
-		for (const e of config.initialCards)
-			this.placeCard(e.type, e.index, BasicCard.get(e.type, e.index), false);
+		for (const e of this.getSettings().initialCards)
+			this.placeCard(e.type, e.index, this.cardContainer.getBasicCard(e.type, e.index), false);
 	}
 
 	async start() {
@@ -42,11 +50,11 @@ export default class Board {
 			const action = await player.getNextAction();
 
 			if (player instanceof Computer)
-				await utility.awaitSleep(config.minComputerThinkingTime);
+				await utility.awaitSleep(this.getSettings().minComputerThinkingTime);
 
 			if (action !== "PASS" && this.canPlace(action.type, action.index, action.card)) {
 				const prev = this.placeCard(action.type, action.index, action.card);
-				if (prev !== null && config.giveBackJoker)
+				if (prev !== null && this.getSettings().giveBackJoker)
 					player.addCardIntoHands(prev);
 				player.removeCardFromHands(action.card);
 			}
@@ -78,6 +86,10 @@ export default class Board {
 	end(): void {
 		console.log("**** Game Set ****");
 		this.printRanks();
+	}
+
+	getSettings(): Settings {
+		return this.settings;
 	}
 
 	getRow(type: BasicCardType): Row {

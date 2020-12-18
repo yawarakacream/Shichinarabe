@@ -14,18 +14,17 @@ export const newArray = <T>(size: number, elementCreator: (index: number) => T):
     return new Array(size).fill(null).map((v, i) => elementCreator(i));
 };
 
-export const listenEventAsync = async <K extends keyof DocumentEventMap>(target: Document, type: K,
-    listener: (target: Document, ev: DocumentEventMap[K]) => any) => {
+export const listenEventOnceAsync = async <K extends keyof HTMLElementEventMap>(target: HTMLElement, type: K): Promise<HTMLElementEventMap[K]> => {
         return new Promise(resolve => target.addEventListener(type, ev => {
-            listener(target, ev);
             resolve(ev);
+            return ev;
         }, { once: true }));
     };
 
-export const awaitEvent = async <K extends keyof DocumentEventMap>(target: Document, type: K,
-    filter: (target: Document, ev: DocumentEventMap[K]) => boolean) => {
+export const awaitEvent = async <K extends keyof HTMLElementEventMap>(target: HTMLElement, type: K,
+    filter: (target: HTMLElement, ev: HTMLElementEventMap[K]) => boolean) => {
         while (true) {
-            if (await listenEventAsync(target, type, (_, ev) => filter(target, ev)))
+            if (await listenEventOnceAsync(target, type).then(ev => filter(target, ev)))
                 break;
         }
     };

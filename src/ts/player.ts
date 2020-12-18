@@ -1,10 +1,12 @@
 import Board from "./board";
-import { BasicCardType, basicCardTypes, CardNumber, Card, cardNumbers, Joker, BasicCard } from "./card";
+import { BasicCardType, basicCardTypes, CardNumber, Card, cardNumbers, BasicCard } from "./card";
 import * as utility from "./utility";
 
+export type PlayerAction = { type: BasicCardType, index: CardNumber, card: Card } | "PASS";
+
 export abstract class Player {
-    private board: Board;
-    private hands: Card[];
+    protected board: Board;
+    protected hands: Card[];
 
     constructor(board: Board) {
         this.board = board;
@@ -42,14 +44,14 @@ export abstract class Player {
         console.log(this.hands.reduce((acc, v) => acc + " " + v.getShortName(), "====[Hands]====\n(" + this.hands.length + ")"));
     }
 
-    abstract getNextAction(): Promise<{ type: BasicCardType, index: CardNumber, card: Card } | "PASS">;
+    abstract getNextAction(): Promise<PlayerAction>;
 }
 
 export class Computer extends Player {
     constructor(board: Board) {
         super(board);
     }
-    async getNextAction(): Promise<{ type: BasicCardType, index: CardNumber, card: Card } | "PASS"> {
+    async getNextAction(): Promise<PlayerAction> {
         if (this.isHandEmpty())
             throw new Error("$hand is empty");
         const candidates = utility.shuffleArray(this.getCandidatePoints());
@@ -61,9 +63,13 @@ export class Human extends Player {
     constructor(board: Board) {
         super(board);
     }
-    async getNextAction(): Promise<{ type: BasicCardType, index: CardNumber, card: Card } | "PASS"> {
+    async getNextAction(): Promise<PlayerAction> {
         if (this.isHandEmpty())
             throw new Error("$hand is empty");
-        return utility.shuffleArray(this.getCandidatePoints())[0];
+        
+        return Promise.any([
+            this.board.getSettings().humanInputHandler.awaitPass().then(_ => "PASS"),
+            this.board.getSettings().humanInputHandler.awaitPlaceCard()
+        ]);
     }
 }
