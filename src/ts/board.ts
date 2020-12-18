@@ -60,7 +60,7 @@ export default class Board {
 			}
 			
 			this.printRows();
-			this.players.forEach(p => p.printHands());
+			this.printPlayerHands();
 			
 			if (player.isHandEmpty())
 				this.setRank(this.turn, this.lastRank++);
@@ -135,7 +135,7 @@ export default class Board {
 	printRows(): void {
 		let str = "===[Board]===";
 		for (const t of basicCardTypes) {
-			str += "\n[" + t.charAt(0) + "]"
+			str += `\n[${t.charAt(0)}]`
 			for (const n of cardNumbers) {
 				const c = this.getRow(t).getCard(n);
 				str += " ";
@@ -162,10 +162,17 @@ export default class Board {
 		}
 
 		let str = "====[Ranking]====";
-		for (let i = 0; i < this.lastRank; i++) {
-			str += "\n" + i + ": " + ranking.get(i);
-		}
+		for (let i = 0; i < this.lastRank; i++)
+			str += `\n${i}: ${ranking.get(i)}`;
 		
 		console.log(str);
+	}
+
+	printPlayerHands(): void {
+		let str = "====[Player Hands]====";
+		if (this.settings.human)
+			str += "\nHM: " + this.players[0].toString();
+		console.log(this.players.filter(p => p instanceof Computer)
+			.reduce((acc, v, i) => `${acc}\nC${i}: ${v.toString()}`, str));
 	}
 }

@@ -40,8 +40,8 @@ export abstract class Player {
         this.hands = this.hands.filter(c => c != card);
     }
 
-    printHands(): void {
-        console.log(this.hands.reduce((acc, v) => acc + " " + v.getShortName(), "====[Hands]====\n(" + this.hands.length + ")"));
+    toString(): string {
+        return this.hands.reduce((acc, v) => acc + " " + v.getShortName(), "(" + this.hands.length + ")");
     }
 
     abstract getNextAction(): Promise<PlayerAction>;
