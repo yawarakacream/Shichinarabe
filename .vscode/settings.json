@@ -1,0 +1,8 @@
+{
+	"editor.formatOnSave": true,
+	"prettier.printWidth": 120,
+	"editor.wordWrapColumn": 200,
+	"prettier.disableLanguages": [
+		"typescript"
+	]
+}
