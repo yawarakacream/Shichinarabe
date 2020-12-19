@@ -24,25 +24,18 @@ export abstract class Player {
         return result;
     }
 
-    isHandEmpty(): boolean {
-        return this.hands.length === 0;
-    }
+    isHandEmpty = () => this.hands.length === 0;
 
-    hasBasicCard(): boolean {
-        return this.hands.some(c => c instanceof BasicCard);
-    }
+    hasBasicCard = () => this.hands.some(c => c instanceof BasicCard);
 
-    addCardIntoHands(card: Card): void {
+    addCardIntoHands = (card: Card) => {
+        if (card===undefined) throw new Error();
         this.hands.push(card);
     }
 
-    removeCardFromHands(card: Card): void {
-        this.hands = this.hands.filter(c => c != card);
-    }
+    removeCardFromHands = (card: Card) => this.hands = this.hands.filter(c => c != card);
 
-    toString(): string {
-        return this.hands.reduce((acc, v) => acc + " " + v.getShortName(), "(" + this.hands.length + ")");
-    }
+    toString = () => this.hands.reduce((acc, v) => acc + " " + v.getShortName(), "(" + this.hands.length + ")");
 
     abstract getNextAction(): Promise<PlayerAction>;
 }
@@ -51,11 +44,13 @@ export class Computer extends Player {
     constructor(board: Board) {
         super(board);
     }
+
     async getNextAction(): Promise<PlayerAction> {
         if (this.isHandEmpty())
             throw new Error("$hand is empty");
 
         await utility.awaitSleep(this.board.getSettings().minComputerThinkingTime);
+        
         const candidates = utility.shuffleArray(this.getCandidatePoints());
         return candidates.length == 0 ? "PASS" : candidates[0];
     }

@@ -1,28 +1,30 @@
-import Board, { GameProceedingListener } from "./board";
-import { BasicCardType, BasicCard, CardNumber, Card, basicCardTypes, cardNumbers, Joker } from "./card";
+import Board from "./board";
+import { ConsolePrinter } from "./proceedingListener";
+import { BasicCardType, basicCardTypes, cardNumbers } from "./card";
 import { Player, PlayerAction } from "./player";
 import Settings from "./settings";
 import * as utility from "./utility";
 
-const HTMLElements: { passButton: HTMLElement, cardTable: HTMLElement, card: (type: BasicCardType, index: number) => HTMLElement } = {
+const HTMLElements: { passButton: HTMLElement, cardTable: HTMLElement, card: (type: BasicCardType, index: number) => CardHTMLElement } = {
     passButton: document.getElementById("shichinarabe-pass"),
     cardTable: document.getElementById("shichinarabe-cards"),
     card: undefined
 };
 
-const CARD_TABLE: Map<BasicCardType, HTMLElement[]> = (() => {
-    const result = new Map();
+type CardHTMLElement = { td: HTMLElement, img: HTMLElement };
+const CARD_TABLE: Map<BasicCardType, CardHTMLElement[]> = (() => {
+    const result = new Map<BasicCardType, CardHTMLElement[]>();
     for (const t of basicCardTypes) {
-        const els = [];
         const tr = document.createElement("tr");
+        const els = [];
         for (const n of cardNumbers) {
             const td = document.createElement("td");
             const img = document.createElement("img");
             img.setAttribute("src", "img/joker.png");
-            img.dataset["show"] = "false";
             td.appendChild(img);
+            td.dataset["show"] = "false";
             tr.appendChild(td);
-            els.push(img);
+            els.push({ td: td, img: img });
         }
         result.set(t, els);
         HTMLElements.cardTable.appendChild(tr);
@@ -47,9 +49,14 @@ class Human extends Player {
     }
 }
 
-class GameProceedingHandler extends GameProceedingListener {
+class GameProceedingHandler extends ConsolePrinter {
     constructor(board: Board) {
         super(board);
+    }
+
+    onGameStarted() {
+        super.onGameStarted();
+        this.renderCards();
     }
 
     onBoardChanged() {
@@ -61,14 +68,12 @@ class GameProceedingHandler extends GameProceedingListener {
         for (const t of basicCardTypes) {
             for (const n of cardNumbers) {
                 const el = HTMLElements.card(t, n);
+                el.td.dataset["show"] = "false";
+                
                 const card = board.getRow(t).getCard(n);
-                
-                if (card === null)
-                    el.dataset["show"] = "false";
-                
-                else {
-                    el.setAttribute("src", card instanceof BasicCard ? `img/${t.toLowerCase()}/p${n + 1}.png` : "img/joker.png");
-                    el.dataset["show"] = "true";
+                if (card) {
+                    el.img.setAttribute("src", card.getImagePath());
+                    el.td.dataset["show"] = "true";
                 }
             }
         }
@@ -76,6 +81,7 @@ class GameProceedingHandler extends GameProceedingListener {
 }
 
 const board = new Board(new Settings({
+    minComputerThinkingTime: 100,
     humanClassConstructor: undefined,//(board: Board) => new Human(board),
     gameProceedingListenerConstructor: (board: Board) => new GameProceedingHandler(board)
 }));

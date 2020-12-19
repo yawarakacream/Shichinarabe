@@ -1,8 +1,12 @@
-#shichinarabe-cards td img[data-show="true"] {
+#shichinarabe-cards td[data-show="true"] {
 	width: 80px;
 }
 
-#shichinarabe-cards td img[data-show="false"] {
+#shichinarabe-cards td[data-show="false"] {
 	width: 80px;
 	opacity: 0;
+}
+
+#shichinarabe-cards td img {
+	width: 100%;
 }

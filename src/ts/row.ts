@@ -24,19 +24,17 @@ export default class Row {
 	}
 
 	placeCard(index: CardNumber, card: Card, needValidation: boolean = true): Card {
+		if (card === undefined)
+			throw new Error("illegal $card");
 		if (needValidation && !this.canPlace(index, card))
-			return null;
+			throw new Error("illegal status");
 		
 		const tmp = this.elements[index];
 		this.elements[index] = card;
 		return tmp;
 	}
 
-	getCard(index: CardNumber): Card {
-		return this.elements[index];
-	}
+	getCard = (index: CardNumber) => this.elements[index];
 
-	isPlaced(index: CardNumber): boolean {
-		return this.getCard(index) != null;
-	}
+	isPlaced = (index: CardNumber) => this.getCard(index) !== null;
 }

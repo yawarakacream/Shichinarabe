@@ -1,6 +1,7 @@
-import Board, { GameProceedingListener } from "./board";
+import Board from "./board";
 import { BasicCardType, basicCardTypes, CardNumber } from "./card";
 import { Player } from "./player";
+import GameProceedingListener from "./proceedingListener";
 
 export default class Settings {
     // ジョーカーの枚数
@@ -19,7 +20,7 @@ export default class Settings {
     readonly computers: number = 3;
 
     // コンピュータの最小思考時間 [ms]
-    readonly minComputerThinkingTime: number = 200;
+    readonly minComputerThinkingTime: number = 100;
 
     // 進行イベントを取るリスナー
     readonly gameProceedingListenerConstructor: (board: Board) => GameProceedingListener = undefined;
