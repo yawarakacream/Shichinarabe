@@ -1,0 +1,8 @@
+#shichinarabe-cards td img[data-show="true"] {
+	width: 80px;
+}
+
+#shichinarabe-cards td img[data-show="false"] {
+	width: 80px;
+	opacity: 0;
+}

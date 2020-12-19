@@ -4,9 +4,24 @@ import { Player, Computer } from "./player";
 import Settings from "./settings";
 import * as utility from "./utility";
 
+export abstract class GameProceedingListener {
+	protected board: Board;
+	
+	constructor(board: Board) {
+		this.board = board;
+	}
+
+	onBoardChanged(): void {
+		this.board.printRows();
+		this.board.printPlayerHands();
+	};
+}
+
 export default class Board {
 	private readonly settings: Settings;
 	private readonly cardContainer: CardContainer;
+
+	private readonly proceedingListener: GameProceedingListener;
 
 	private readonly stocks: Card[];
 	private readonly rows: Map<BasicCardType, Row>;
@@ -20,6 +35,9 @@ export default class Board {
 	constructor(settings: Settings) {
 		this.settings = settings;
 		this.cardContainer = new CardContainer(this);
+
+		const a = this.getSettings().gameProceedingListenerConstructor(this);
+		this.proceedingListener = this.getSettings().gameProceedingListenerConstructor(this);
 
 		this.stocks = utility.shuffleArray([...this.cardContainer.getAllCards()].filter(c => !this.getSettings().initialCards.some(d => this.cardContainer.getBasicCard(d.type, d.index) === c)));
 		this.rows = new Map(basicCardTypes.map((t) => [t, new Row(t)]));
@@ -41,7 +59,7 @@ export default class Board {
 			this.placeCard(e.type, e.index, this.cardContainer.getBasicCard(e.type, e.index), false);
 	}
 
-	async start() {
+	start() {
 		console.log("**** Game Start ****");
 		this.proceedGame();
 	}
@@ -63,8 +81,7 @@ export default class Board {
 			player.removeCardFromHands(action.card);
 		}
 		
-		this.printRows();
-		this.printPlayerHands();
+		this.proceedingListener.onBoardChanged();
 		
 		/**
 		 * 手札がなくなった場合、勝ち抜け
@@ -87,7 +104,7 @@ export default class Board {
 			this.setRank(this.turn, this.lastRank++);
 			return this.end();
 		}
-
+		
 		return this.proceedGame();
 	}
 
@@ -182,4 +199,5 @@ export default class Board {
 		console.log(this.players.filter(p => p instanceof Computer)
 			.reduce((acc, v, i) => `${acc}\nC${i}: ${v.toString()}`, str));
 	}
+
 }
