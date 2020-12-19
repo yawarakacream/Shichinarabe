@@ -82,7 +82,7 @@ class GameProceedingHandler extends ConsolePrinter {
 
 const board = new Board(new Settings({
     minComputerThinkingTime: 100,
-    humanClassConstructor: undefined,//(board: Board) => new Human(board),
+    humanClassConstructor: (board: Board) => new Human(board),
     gameProceedingListenerConstructor: (board: Board) => new GameProceedingHandler(board)
 }));
 
