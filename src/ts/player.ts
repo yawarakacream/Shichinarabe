@@ -54,22 +54,9 @@ export class Computer extends Player {
     async getNextAction(): Promise<PlayerAction> {
         if (this.isHandEmpty())
             throw new Error("$hand is empty");
+
+        await utility.awaitSleep(this.board.getSettings().minComputerThinkingTime);
         const candidates = utility.shuffleArray(this.getCandidatePoints());
         return candidates.length == 0 ? "PASS" : candidates[0];
-    }
-}
-
-export class Human extends Player {
-    constructor(board: Board) {
-        super(board);
-    }
-    async getNextAction(): Promise<PlayerAction> {
-        if (this.isHandEmpty())
-            throw new Error("$hand is empty");
-        
-        return Promise.any([
-            this.board.getSettings().humanInputHandler.awaitPass().then(_ => "PASS"),
-            this.board.getSettings().humanInputHandler.awaitPlaceCard()
-        ]);
     }
 }

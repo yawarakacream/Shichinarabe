@@ -1,24 +1,33 @@
 import Board from "./board";
-import { BasicCardType, CardNumber, Card } from "./card";
-import InputHandler from "./inputHandler";
+import { BasicCardType, CardNumber, Card, basicCardTypes, cardNumbers } from "./card";
+import { Player, PlayerAction } from "./player";
 import Settings from "./settings";
 import * as utility from "./utility";
 
-class InputHandlerImpl implements InputHandler {
-    awaitPass(): Promise<boolean> {
-        return new Promise(resolve => utility.listenEventOnceAsync(document.getElementById("shicinarabe-pass"), "click").then(e => {
-            resolve(true);
-        }));
+const HTMLElements = {
+    PASS_BUTTON: document.getElementById("shicinarabe-pass"),
+    CARDS: document.getElementById("shicinarabe-cards")
+};
+
+class Human extends Player {
+    constructor(board: Board) {
+        super(board);
     }
-    awaitPlaceCard(): Promise<{ type: BasicCardType, index: CardNumber, card: Card }> {
-        return new Promise(resolve => {});
-        // throw new Error("Method not implemented.");
+
+    async getNextAction(): Promise<PlayerAction> {
+        if (this.isHandEmpty())
+            throw new Error("$hand is empty");
+        
+        return Promise.any([
+            new Promise<void>(resolve => utility.listenEventOnceAsync(HTMLElements.PASS_BUTTON, "click")
+                .then(e => resolve()))
+                .then(_ => "PASS")
+        ]);
     }
 }
 
 const board = new Board(new Settings({
-    human: true,
-    humanInputHandler: new InputHandlerImpl()
+    humanClassConstructor: (board: Board) => new Human(board)
 }));
 console.log(board);
 
