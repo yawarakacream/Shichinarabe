@@ -27,8 +27,8 @@ export class ConsolePrinter extends GameProceedingListener {
 	}
 
 	onGameEnded(): void {
-        console.log("**** Game Set ****");
-        this.printRanks();
+		console.log("**** Game Set ****");
+		this.printRanks();
 	}
 
 	onBoardChanged(): void {
@@ -56,15 +56,15 @@ export class ConsolePrinter extends GameProceedingListener {
 			}
 		}
 		console.log(str);
-    }
-    
-    private printPlayerHands(): void {
+	}
+	
+	private printPlayerHands(): void {
 		let str = "====[Player Hands]====";
 		if (this.board.getSettings().humanClassConstructor !== undefined)
 			str += "\nHM: " + this.board.getPlayer(0).toString();
 		console.log(this.board.getPlayers().filter(p => p instanceof Computer)
 			.reduce((acc, v, i) => `${acc}\nC${i}: ${v.toString()}`, str));
-    }
+	}
 
 	private printRanks(): void {
 		console.log(this.board.getRanks());
@@ -76,7 +76,7 @@ export class ConsolePrinter extends GameProceedingListener {
 			else
 				ranking.get(r).push(i);
 		}
-
+		
 		let str = "====[Ranking]====";
 		for (let i = 0; i < this.board.getLastRank(); i++)
 			str += `\n${i}: ${ranking.get(i)}`;
