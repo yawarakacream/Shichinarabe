@@ -5,6 +5,7 @@ import * as utility from "./utility";
 export type PlayerAction = { type: BasicCardType, index: CardNumber, card: Card } | "PASS";
 
 export abstract class Player {
+
 	protected board: Board;
 	protected hands: Card[];
 
@@ -33,14 +34,16 @@ export abstract class Player {
 		this.hands.push(card);
 	}
 
-	removeCardFromHands = (card: Card) => this.hands = this.hands.filter(c => c != card);
+	removeCardFromHands = (card: Card) => this.hands = this.hands.filter(c => c !== card);
 
 	toString = () => this.hands.reduce((acc, v) => acc + " " + v.getShortName(), "(" + this.hands.length + ")");
 
 	abstract getNextAction(): Promise<PlayerAction>;
+
 }
 
 export class Computer extends Player {
+
 	constructor(board: Board) {
 		super(board);
 	}
@@ -54,4 +57,5 @@ export class Computer extends Player {
 		const candidates = utility.shuffleArray(this.getCandidatePoints());
 		return candidates.length == 0 ? "PASS" : candidates[0];
 	}
+	
 }

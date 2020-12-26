@@ -3,6 +3,7 @@ import { BasicCard, basicCardTypes, cardNumbers, Joker } from "./card";
 import { Computer } from "./player";
 
 export default abstract class GameProceedingListener {
+
 	protected readonly board: Board;
 
 	constructor(board: Board) {
@@ -13,9 +14,11 @@ export default abstract class GameProceedingListener {
 	abstract onGameEnded(): void;
 	abstract onBoardChanged(): void;
 	abstract onTurnEnded(): void;
+
 }
 
 export class ConsolePrinter extends GameProceedingListener {
+
 	protected board: Board;
 	
 	getBoard(): Board {
@@ -83,4 +86,5 @@ export class ConsolePrinter extends GameProceedingListener {
 		
 		console.log(str);
 	}
+	
 }

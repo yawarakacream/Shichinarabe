@@ -1,10 +1,18 @@
+#shichinarabe-players img {
+	width: 40px;
+}
+
+#shichinarabe-players img[data-highlight="false"] {
+	opacity: 50%;
+}
+
 #shichinarabe-cards td[data-show="true"] {
 	width: 80px;
 }
 
 #shichinarabe-cards td[data-show="false"] {
 	width: 80px;
-	opacity: 0;
+	opacity: 0%;
 }
 
 #shichinarabe-cards td img {

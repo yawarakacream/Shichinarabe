@@ -4,6 +4,7 @@ import { Player } from "./player";
 import GameProceedingListener from "./proceedingListener";
 
 export default class Settings {
+
 	// ジョーカーの枚数
 	readonly jorkers: number = 2;
 
@@ -29,4 +30,5 @@ export default class Settings {
 		if (init)
 			Object.assign(this, init);
 	}
+	
 }

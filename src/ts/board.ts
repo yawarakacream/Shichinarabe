@@ -6,6 +6,7 @@ import Settings from "./settings";
 import * as utility from "./utility";
 
 export default class Board {
+
 	private readonly settings: Settings;
 	private readonly cardContainer: CardContainer;
 
@@ -22,8 +23,6 @@ export default class Board {
 	constructor(settings: Settings) {
 		this.settings = settings;
 		this.cardContainer = new CardContainer(this);
-
-		this.proceedingListener = this.getSettings().gameProceedingListenerConstructor(this);
 
 		this.rows = new Map(basicCardTypes.map((t) => [t, new Row(t)]));
 
@@ -44,6 +43,8 @@ export default class Board {
 		// 初期カードの配置
 		for (const e of this.getSettings().initialCards)
 			this.placeCard(e.type, e.index, this.cardContainer.getBasicCard(e.type, e.index), false);
+
+		this.proceedingListener = this.getSettings().gameProceedingListenerConstructor(this);
 	}
 
 	start() {
@@ -100,6 +101,8 @@ export default class Board {
 		return this.proceedGame();
 	}
 
+	getCurrentTurnNumber = () => this.turn;
+
 	getNextTurnNumber = () => [...new Array(this.players.length - 1).keys()]
 			.map(i => i + this.turn + 1)
 			.map(i => i % this.players.length)
@@ -134,4 +137,5 @@ export default class Board {
 	}
 
 	getLastRank = () => this.lastRank;
+	
 }
