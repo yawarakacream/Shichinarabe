@@ -24,6 +24,25 @@ export abstract class Card {
 	getShortName = () => this.shortName;
 	getImagePath = () => this.imagePath;
 
+	static readonly comparator = (a: Card, b: Card): number => {
+		if (a ===  b)
+			return 0;
+		
+		if (a instanceof Joker)
+			return -1;
+		if (b instanceof Joker)
+			return 1;
+		
+		if (!(a instanceof BasicCard) || !(b instanceof BasicCard))
+			throw new Error("unreachable");
+
+		const ta = basicCardTypes.indexOf(a.getType());
+		const tb = basicCardTypes.indexOf(b.getType());
+		if (ta !== tb)
+			return ta < tb ? -1 : 1;
+		return a.getNumber() < b.getNumber() ? -1 : 1;
+	}
+
 }
 
 export class Joker extends Card {
