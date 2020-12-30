@@ -10,6 +10,9 @@ export default class Row {
 	}
 
 	canPlace(index: CardNumber, card: Card): boolean {
+		if (!card)
+			return false;
+		
 		if (card instanceof BasicCard && (card.type !== this.type || card.getNumber() != index))
 			return false;
 
