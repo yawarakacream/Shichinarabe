@@ -29,7 +29,7 @@ export default class Board {
 		this.players = utility.newArray(this.getSettings().computers, _ => new Computer(this));
 		if (this.getSettings().humanClassConstructor !== undefined)
 			this.players = [this.getSettings().humanClassConstructor(this), ...this.players];
-
+		
 		this.turn = 0;
 		this.ranks = new Array(this.players.length).fill(undefined);
 		this.lastRank = 0;
@@ -113,6 +113,10 @@ export default class Board {
 	getCurrentTurnPlayer = () => this.getPlayer(this.turn);
 
 	getSettings = () => this.settings;
+
+	getCardContainer = () => this.cardContainer;
+
+	getProceedingListener = () => this.proceedingListener;
 
 	getRow = (type: BasicCardType) => this.rows.get(type);
 

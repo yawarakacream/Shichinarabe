@@ -1,20 +1,43 @@
+#shichinarabe-players div {
+	display: inline-block;
+}
+
 #shichinarabe-players img {
-	width: 40px;
+	width: 64px;
 }
 
 #shichinarabe-players img[data-highlight="false"] {
 	opacity: 50%;
 }
 
-#shichinarabe-cards td[data-show="true"] {
+#shichinarabe-cards td {
 	width: 80px;
 }
 
-#shichinarabe-cards td[data-show="false"] {
-	width: 80px;
+#shichinarabe-cards td[data-display="full"] {
+	opacity: 100%;
+}
+
+#shichinarabe-cards td[data-display="translucent"] {
+	opacity: 30%;
+}
+
+#shichinarabe-cards td[data-display="none"] {
 	opacity: 0%;
 }
 
 #shichinarabe-cards td img {
 	width: 100%;
+}
+
+#shichinarabe-human-hands img {
+	display: inline-block;
+	width: 40px;
+	border: solid;
+	border-radius: 10px;
+	border-color: white;
+}
+
+#shichinarabe-human-hands img[data-selected="true"] {
+	border-color: red;
 }

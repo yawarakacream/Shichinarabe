@@ -13,6 +13,8 @@ export abstract class Player {
 		this.board = board;
 		this.hands = [];
 	}
+
+	getHands = () => this.hands;
 	
 	getCandidatePoints(): { type: BasicCardType, index: CardNumber, card: Card }[] {
 		const result = [];
