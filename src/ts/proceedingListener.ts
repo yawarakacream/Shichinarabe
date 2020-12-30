@@ -1,5 +1,5 @@
 import Board from "./board";
-import { BasicCard, basicCardTypes, cardNumbers, Joker } from "./card";
+import { basicCardTypes, cardNumbers, Joker } from "./card";
 import { Computer } from "./player";
 
 export default abstract class GameProceedingListener {
@@ -14,16 +14,13 @@ export default abstract class GameProceedingListener {
 	abstract onGameEnded(): void;
 	abstract onBoardChanged(): void;
 	abstract onTurnEnded(): void;
+	abstract onHumanSelectedNextCard(): void;
 
 }
 
 export class ConsolePrinter extends GameProceedingListener {
 
-	protected board: Board;
-	
-	getBoard(): Board {
-		return this.board;
-	}
+	protected readonly board: Board;
 
 	onGameStarted(): void {
 		console.log("**** Game Start ****");
@@ -43,19 +40,17 @@ export class ConsolePrinter extends GameProceedingListener {
 		// do nothing.
 	}
 
+	onHumanSelectedNextCard(): void {
+		// do nothing.
+	}
+
 	private printRows(): void {
 		let str = "====[Board]====";
 		for (const t of basicCardTypes) {
 			str += `\n[${t.charAt(0)}]`
 			for (const n of cardNumbers) {
 				const c = this.board.getRow(t).getCard(n);
-				str += " ";
-				if (c instanceof BasicCard)
-					str += "B";
-				else if (c instanceof Joker)
-					str += "J";
-				else
-					str += "_";
+				str += " " + (c === null ? "_" : c instanceof Joker ? "J" : "B");
 			}
 		}
 		console.log(str);
@@ -75,9 +70,8 @@ export class ConsolePrinter extends GameProceedingListener {
 		for (let i = 0; i < this.board.getPlayers().length; i++) {
 			const r = this.board.getRank(i);
 			if (!ranking.has(r))
-				ranking.set(r, [i]);
-			else
-				ranking.get(r).push(i);
+				ranking.set(r, []);
+			ranking.get(r).push(i);
 		}
 		
 		let str = "====[Ranking]====";
