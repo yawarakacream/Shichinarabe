@@ -1,9 +1,18 @@
 {
-    "include": ["./src/ts/*"],
-    "exclude": ["./node_modules"],
-    "compilerOptions": {
-        "target": "ESNext",
-        "module": "CommonJS",
-        "noImplicitAny": true,
-    }
+	"include": [
+		"./src/ts/*",
+		"src/ts/core/row.ts",
+		"src/ts/core/settings.ts",
+		"src/ts/core/utility.ts",
+		"src/ts/core/player.ts",
+		"src/ts/core/proceedingListener.ts",
+		"src/ts/core/card.ts",
+		"src/ts/core/board.ts"
+	],
+	"exclude": ["./node_modules"],
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "CommonJS",
+		"noImplicitAny": true
+	}
 }

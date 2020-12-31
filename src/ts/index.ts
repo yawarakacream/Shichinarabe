@@ -1,8 +1,8 @@
-import Board from "./board";
-import { ConsolePrinter } from "./proceedingListener";
-import { BasicCardType, basicCardTypes, cardNumbers, Card } from "./card";
-import { Computer, Player, PlayerAction } from "./player";
-import Settings from "./settings";
+import Board from "./core/board";
+import { ConsolePrinter } from "./core/proceedingListener";
+import { BasicCardType, basicCardTypes, cardNumbers, Card } from "./core/card";
+import { Computer, Player, PlayerAction } from "./core/player";
+import Settings from "./core/settings";
 
 /*
  * HTML
