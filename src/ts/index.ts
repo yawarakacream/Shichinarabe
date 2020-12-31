@@ -14,7 +14,6 @@ type HumanHandHTMLElement = { img: HTMLElement, card: Card };
 const HTMLElements = {
 	players: document.getElementById("shichinarabe-players"),
 	pass: document.getElementById("shichinarabe-pass"),
-	controller: document.getElementById("shichinarabe-controller"),
 	humanHands: document.getElementById("shichinarabe-human-hands"),
 	cards: document.getElementById("shichinarabe-cards")
 } as const;
@@ -158,27 +157,23 @@ class GameDisplayer extends ConsolePrinter {
 	}
 
 	renderCards() {
-		for (const t of basicCardTypes) {
-			for (const n of cardNumbers) {
-				const el = getCardHTMLElement(t, n);
+		this.board.allCells().forEach(v => {
+			const el = getCardHTMLElement(v.t, v.n);
 
-				el.td.dataset["display"] = "none";
-				
-				const currentPlayer = this.board.getCurrentTurnPlayer();
-				if (currentPlayer instanceof Human && this.board.canPlace(t, n, currentPlayer.getCardAboutToPlace())) {
-					console.log(t, n);
-					el.td.dataset["display"] = "translucent";
-				}
-				
-				else {
-					const card = this.board.getRow(t).getCard(n);
-					if (card) {
-						el.img.setAttribute("src", card.getImagePath());
-						el.td.dataset["display"] = "full";
-					}
+			el.td.dataset["display"] = "none";
+			
+			const currentPlayer = this.board.getCurrentTurnPlayer();
+			if (currentPlayer instanceof Human && this.board.canPlace(v.t, v.n, currentPlayer.getCardAboutToPlace()))
+				el.td.dataset["display"] = "translucent";
+			
+			else {
+				const card = this.board.getRow(v.t).getCard(v.n);
+				if (card) {
+					el.img.setAttribute("src", card.getImagePath());
+					el.td.dataset["display"] = "full";
 				}
 			}
-		}
+		});
 	}
 
 	renderHumanHands() {
@@ -191,7 +186,10 @@ class GameDisplayer extends ConsolePrinter {
 		for (const h of human.getHands().sort(Card.comparator)) {
 			const img = document.createElement("img");
 			img.setAttribute("src", h.getImagePath());
-			img.dataset["selected"] = (human.getCardAboutToPlace() === h).toString();
+			if (!this.board.allCells().some(v => this.board.canPlace(v.t, v.n, h)))
+				img.dataset["status"] = "disabled";
+			else if (human.getCardAboutToPlace() === h)
+				img.dataset["status"] = "selected";
 			HTMLElements.humanHands.appendChild(img);
 			humanHandHTMLElements.push({ img: img, card: h });
 		}

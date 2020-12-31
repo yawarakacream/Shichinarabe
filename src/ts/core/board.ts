@@ -1,4 +1,4 @@
-import { BasicCardType, basicCardTypes, CardNumber, Card, CardContainer } from "./card";
+import { BasicCardType, basicCardTypes, CardNumber, Card, CardContainer, cardNumbers } from "./card";
 import Row from "./row";
 import { Player, Computer } from "./player";
 import GameProceedingListener from "./proceedingListener";
@@ -119,6 +119,8 @@ export default class Board {
 	getProceedingListener = () => this.proceedingListener;
 
 	getRow = (type: BasicCardType) => this.rows.get(type);
+
+	allCells = () => basicCardTypes.flatMap(t => cardNumbers.map(n => ({ t: t, n: n })));
 
 	canPlace = (type: BasicCardType, index: CardNumber, card: Card) => this.getRow(type).canPlace(index, card);
 

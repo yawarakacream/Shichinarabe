@@ -38,6 +38,10 @@
 	border-color: white;
 }
 
-#shichinarabe-human-hands img[data-selected="true"] {
-	border-color: red;
+#shichinarabe-human-hands img[data-status="selected"] {
+	border-color: black;
+}
+
+#shichinarabe-human-hands img[data-status="disabled"] {
+	opacity: 30%;
 }
