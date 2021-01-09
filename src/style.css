@@ -1,12 +1,48 @@
-.shichinarabe-root {
+/*
+ * root
+ */
+body {
+	background-image: url("/src/img/background.png");
+	background-size: 24px;
+}
+
+#shichinarabe-root {
+	display: flex;
+	justify-content: space-between;
+}
+
+/*
+ * menu
+ */
+
+#shichinarabe-menu {
+	width: 256px;
+	color: white;
+}
+
+#shichinarabe-ranking td {
+	width: 10%;
+}
+
+#shichinarabe-ranking img {
+	width: 100%;
+}
+
+/*
+ * game
+ */
+
+#shichinarabe-game {
 	background-color: seagreen;
 	position: relative;
 	z-index: 0;
 	overflow: hidden;
 	border: 2px solid rgb(66, 18, 18);
+	width: 1024px;
+	padding: 4px;
 }
 
-.shichinarabe-root::before {
+#shichinarabe-game::before {
 	position: absolute;
 	z-index: -1;
 	content: "";
@@ -15,12 +51,12 @@
 	right: 0;
 	bottom: 0;
 	margin: 4px;
-	border: 2px solid white;
+	border: 2px groove white;
 	border-radius: 5px;
 	opacity: 80%;
 }
 
-.shichinarabe-root::after {
+#shichinarabe-game::after {
 	position: absolute;
 	z-index: -1;
 	content: "";
@@ -29,22 +65,14 @@
 	right: 0;
 	bottom: 0;
 	margin: 12px;
-	border: 3px solid white;
+	border: 3px groove white;
 	border-radius: 5px;
 	opacity: 80%;
 }
 
-#shichinarabe-computers {
-	display: flex;
-}
-
-.shichinarabe-computer {
-	width: 100%;
-}
-.shichinarabe-human {
-	display: flex;
-	height: 84px;
-}
+/*
+ * player
+ */
 
 .shichinarabe-player-icon-container {
 	width: 60px;
@@ -62,6 +90,46 @@
 
 .shichinarabe-player-icon-container img {
 	width: 100%;
+}
+
+/*
+ * computer
+ */
+
+#shichinarabe-computers {
+	display: flex;
+	width: 100%;
+}
+
+.shichinarabe-computer {
+	display: flex;
+	min-width: 0;
+	flex: 1;
+}
+
+.shichinarabe-computer-hands-container {
+	display: flex;
+	justify-content: right;
+	align-items: center;
+	min-width: 0;
+	flex: 1;
+}
+
+.shichinarabe-computer-hands-container img {
+	width: 32px;
+	transform: translateX(calc(-16px * var(--index)));
+	z-index: calc(32 - var(--index));
+}
+
+/*
+ * human
+ */
+
+#shichinarabe-human {
+	display: flex;
+	justify-content: right;
+	align-items: center;
+	height: 74px;
 }
 
 #shichinarabe-human-pass-container {
@@ -94,8 +162,13 @@
 	opacity: 30%;
 }
 
-#shichinarabe-cards td {
-	width: 60px;
+/*
+ * cards
+ */
+
+#shichinarabe-cards {
+	table-layout: fixed;
+	width: 100%;
 }
 
 #shichinarabe-cards td[data-display="full"] {

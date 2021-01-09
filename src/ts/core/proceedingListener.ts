@@ -1,6 +1,7 @@
 import Board, { Rank } from "./board";
 import { basicCardTypes, cardNumbers, Joker } from "./card";
 import { Computer } from "./player";
+import * as utility from "./utility";
 
 export default abstract class GameProceedingListener {
 
@@ -71,15 +72,7 @@ export class ConsolePrinter extends GameProceedingListener {
 
 	private printRanks(): void {
 		console.log(this.board.getRanks());
-		let ranking: Map<number, number[]> = new Map();
-		for (let i = 0; i < this.board.getPlayers().length; i++) {
-			const r = this.board.getRank(i);
-			if (r === undefined)
-				continue;
-			if (!ranking.has(r))
-				ranking.set(r, []);
-			ranking.get(r)!.push(i);
-		}
+		let ranking: Map<Rank, number[]> = utility.swapKV(utility.toMap(this.board.getRanks()));
 		
 		let str = "====[Ranking]====";
 		for (let i = 0; i < this.board.getLastRank(); i++)
