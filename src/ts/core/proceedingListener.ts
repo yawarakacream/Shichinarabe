@@ -1,4 +1,4 @@
-import Board from "./board";
+import Board, { Rank } from "./board";
 import { basicCardTypes, cardNumbers, Joker } from "./card";
 import { Computer } from "./player";
 
@@ -14,6 +14,7 @@ export default abstract class GameProceedingListener {
 	abstract onGameEnded(): void;
 	abstract onBoardChanged(): void;
 	abstract onTurnEnded(): void;
+	abstract onPlayerWon(player: number, rank: Rank): void;
 	abstract onHumanSelectedNextCard(): void;
 
 }
@@ -38,6 +39,10 @@ export class ConsolePrinter extends GameProceedingListener {
 	
 	onTurnEnded(): void {
 		// do nothing.
+	}
+
+	onPlayerWon(player: number, rank: number): void {
+		console.log(`**** Won ${player} in #${rank} ****`)
 	}
 
 	onHumanSelectedNextCard(): void {
@@ -69,9 +74,11 @@ export class ConsolePrinter extends GameProceedingListener {
 		let ranking: Map<number, number[]> = new Map();
 		for (let i = 0; i < this.board.getPlayers().length; i++) {
 			const r = this.board.getRank(i);
+			if (r === undefined)
+				continue;
 			if (!ranking.has(r))
 				ranking.set(r, []);
-			ranking.get(r).push(i);
+			ranking.get(r)!.push(i);
 		}
 		
 		let str = "====[Ranking]====";

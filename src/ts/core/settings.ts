@@ -1,7 +1,7 @@
 import Board from "./board";
 import { BasicCardType, basicCardTypes, CardNumber } from "./card";
 import { Player } from "./player";
-import GameProceedingListener from "./proceedingListener";
+import GameProceedingListener, { ConsolePrinter } from "./proceedingListener";
 
 export default class Settings {
 
@@ -15,7 +15,7 @@ export default class Settings {
 	readonly initialCards: { type: BasicCardType, index: CardNumber }[] = [...basicCardTypes].map(t => ({ type: t, index: 6 }));
 
 	// ゲームに参加する人間
-	readonly humanClassConstructor: (board: Board) => Player = undefined;
+	readonly humanClassConstructor: ((board: Board) => Player) | undefined = undefined;
 
 	// ゲームに参加するコンピュータの数
 	readonly computers: number = 3;
@@ -24,7 +24,7 @@ export default class Settings {
 	readonly minComputerThinkingTime: number = 100;
 
 	// 進行イベントを取るリスナー
-	readonly gameProceedingListenerConstructor: (board: Board) => GameProceedingListener = undefined;
+	readonly gameProceedingListenerConstructor: ((board: Board) => GameProceedingListener) = (board) => new ConsolePrinter(board);
 
 	constructor(init?: Partial<Settings>) {
 		if (init)

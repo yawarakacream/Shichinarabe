@@ -5,6 +5,8 @@ import GameProceedingListener from "./proceedingListener";
 import Settings from "./settings";
 import * as utility from "./utility";
 
+export type Rank = number | undefined;
+
 export default class Board {
 
 	private readonly settings: Settings;
@@ -17,7 +19,7 @@ export default class Board {
 	private readonly players: Player[];
 	
 	private turn: number | undefined;
-	private ranks: (number | undefined)[];
+	private ranks: Rank[];
 	private lastRank: number;
 
 	constructor(settings: Settings) {
@@ -27,11 +29,12 @@ export default class Board {
 		this.rows = new Map(basicCardTypes.map((t) => [t, new Row(t)]));
 
 		this.players = utility.newArray(this.getSettings().computers, _ => new Computer(this));
-		if (this.getSettings().humanClassConstructor !== undefined)
-			this.players = [this.getSettings().humanClassConstructor(this), ...this.players];
+		const hcc = this.getSettings().humanClassConstructor;
+		if (hcc)
+			this.players = [hcc(this), ...this.players];
 		
 		this.turn = 0;
-		this.ranks = new Array(this.players.length).fill(undefined);
+		this.ranks = utility.newArray(this.players.length, () => undefined);
 		this.lastRank = 0;
 
 		// 手札を配布
@@ -43,7 +46,7 @@ export default class Board {
 		// 初期カードの配置
 		for (const e of this.getSettings().initialCards)
 			this.placeCard(e.type, e.index, this.cardContainer.getBasicCard(e.type, e.index), false);
-
+		
 		this.proceedingListener = this.getSettings().gameProceedingListenerConstructor(this);
 	}
 
@@ -77,7 +80,7 @@ export default class Board {
 		 */
 
 		if (player.isHandEmpty())
-			this.setRank(this.turn, this.lastRank++);
+			this.setRank(this.turn!, this.lastRank++);
 
 		const reminders = this.players.map((p, i) => ({p: p, i: i})).filter(r => !this.hasWon(r.i)).filter(r => !r.p.isHandEmpty());
 		if (reminders.length === 1) {
@@ -92,7 +95,7 @@ export default class Board {
 
 		this.turn = this.getNextTurnNumber();
 		if (this.turn === undefined) {
-			this.setRank(this.turn, this.lastRank++);
+			this.setRank(this.turn!, this.lastRank++);
 			return this.end();
 		}
 
@@ -104,13 +107,13 @@ export default class Board {
 	getCurrentTurnNumber = () => this.turn;
 
 	getNextTurnNumber = () => [...new Array(this.players.length - 1).keys()]
-			.map(i => i + this.turn + 1)
+			.map(i => i + this.turn! + 1)
 			.map(i => i % this.players.length)
 			.find((v, _) => this.ranks[v] === undefined);
 
 	isEnded = () => this.turn === undefined;
 
-	getCurrentTurnPlayer = () => this.getPlayer(this.turn);
+	getCurrentTurnPlayer = () => this.getPlayer(this.turn!);
 
 	getSettings = () => this.settings;
 
@@ -118,11 +121,11 @@ export default class Board {
 
 	getProceedingListener = () => this.proceedingListener;
 
-	getRow = (type: BasicCardType) => this.rows.get(type);
+	getRow = (type: BasicCardType) => this.rows.get(type)!;
 
 	allCells = () => basicCardTypes.flatMap(t => cardNumbers.map(n => ({ t: t, n: n })));
 
-	canPlace = (type: BasicCardType, index: CardNumber, card: Card) => this.getRow(type).canPlace(index, card);
+	canPlace = (type: BasicCardType, index: CardNumber, card?: Card) => card && this.getRow(type).canPlace(index, card);
 
 	placeCard = (type: BasicCardType, index: CardNumber, card: Card, needValidation: boolean = true) =>
 		this.getRow(type).placeCard(index, card, needValidation);
@@ -137,9 +140,9 @@ export default class Board {
 
 	getRank = (index: number) => this.ranks[index];
 
-	setRank(player: number, rank: number) {
+	setRank(player: number, rank: Rank) {
 		this.ranks[player] = rank;
-		console.log(`**** Won ${player} in #${rank} ****`)
+		this.getProceedingListener().onPlayerWon(player, rank);
 	}
 
 	getLastRank = () => this.lastRank;

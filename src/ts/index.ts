@@ -7,26 +7,28 @@ import Settings from "./core/settings";
 /*
  * HTML
  */
-type PlayerHTMLElement = { img: HTMLElement };
 type CardHTMLElement = { td: HTMLElement, img: HTMLElement };
 type HumanHandHTMLElement = { img: HTMLElement, card: Card };
 
 const HTMLElements = {
-	players: document.getElementById("shichinarabe-players"),
-	pass: document.getElementById("shichinarabe-pass"),
-	humanHands: document.getElementById("shichinarabe-human-hands"),
-	cards: document.getElementById("shichinarabe-cards")
+	computers: document.getElementById("shichinarabe-computers")!,
+	cards: document.getElementById("shichinarabe-cards")!,
+	human: document.getElementById("shichinarabe-human")!,
+	humanIcon: document.getElementById("shichinarabe-human-icon-container")!,
+	humanHands: document.getElementById("shichinarabe-human-hands-container")!,
+	pass: document.getElementById("shichinarabe-human-pass-container")!,
 } as const;
-let getPlayerHTMLElement: (n: number) => PlayerHTMLElement = undefined;
-let getCardHTMLElement: (type: BasicCardType, index: number) => CardHTMLElement = undefined;
-let humanHandHTMLElements: HumanHandHTMLElement[] = undefined;
+let getCardHTMLElement: (type: BasicCardType, index: number) => CardHTMLElement;
+let playerIconHTMLElements: HTMLElement[];
+let humanHandHTMLElements: HumanHandHTMLElement[];
+
 
 /*
  * Human
  */
 class Human extends Player {
 
-	private aboutToPlace?: Card = null;
+	private aboutToPlace?: Card = undefined;
 
 	constructor(board: Board) {
 		super(board);
@@ -50,8 +52,10 @@ class Human extends Player {
 
 			registerListener(HTMLElements.humanHands, "click", ev => {
 				const el = humanHandHTMLElements.find(e => e.img === ev.target);
-				this.aboutToPlace = el.card;
-				this.board.getProceedingListener().onHumanSelectedNextCard();
+				if (el && this.aboutToPlace !== el.card) {
+					this.aboutToPlace = el.card;
+					this.board.getProceedingListener().onHumanSelectedNextCard();
+				}
 			});
 
 			registerListener(HTMLElements.cards, "click", ev => {
@@ -68,7 +72,7 @@ class Human extends Player {
 				}
 			});
 		}).then(v => {
-			this.aboutToPlace = null;
+			this.aboutToPlace = undefined;
 			listeners.forEach(e => e.target.removeEventListener(e.type, e.listener));
 			return v;
 		});
@@ -81,31 +85,55 @@ class Human extends Player {
  */
 class GameDisplayer extends ConsolePrinter {
 
-	readonly PLAYER_TABLE: Map<number, PlayerHTMLElement>;
-
 	readonly CARD_TABLE: Map<BasicCardType, CardHTMLElement[]>;
 
 	constructor(board: Board) {
 		super(board);
 
-		getPlayerHTMLElement = (n: number) => this.PLAYER_TABLE.get(n);
-		getCardHTMLElement = (type: BasicCardType, index: number) => this.CARD_TABLE.get(type)[index];
+		getCardHTMLElement = (type: BasicCardType, index: number) => this.CARD_TABLE.get(type)![index];
 
-		// players
-		HTMLElements.players.innerHTML = "";
-		this.PLAYER_TABLE = new Map();
-		this.board.getPlayers().forEach((p, i) => {
+		playerIconHTMLElements = [];
+
+		// human
+		if (this.board.getSettings().humanClassConstructor) {
 			const div = document.createElement("div");
+			div.classList.add("shichinarabe-player-icon-container");
+
+			const iconImg = document.createElement("img");
+			iconImg.setAttribute("src", "img/player/human.png");
+			div.appendChild(iconImg);
+
+			HTMLElements.humanIcon.appendChild(div);
+			playerIconHTMLElements.push(div);
+
+			const passImg = document.createElement("img");
+			passImg.setAttribute("src", "img/player/human_pass.png");
+			HTMLElements.pass.appendChild(passImg);
+		}
+
+		// computers
+		HTMLElements.computers.innerHTML = "";
+		
+		this.board.getPlayers().filter(p => p instanceof Computer).forEach((c, i) => {
+			const div = document.createElement("div");
+			div.classList.add("shichinarabe-computer");
+			HTMLElements.computers.appendChild(div);
+			
+			const icdiv = document.createElement("div");
+			icdiv.classList.add("shichinarabe-player-icon-container");
+			div.appendChild(icdiv);
+
 			const img = document.createElement("img");
-			if (p instanceof Human)
-				img.setAttribute("src", "img/player/human.png");
-			else if (p instanceof Computer)
-				img.setAttribute("src", "img/player/computer.png");
+			img.setAttribute("src", "img/player/computer.png");
 			img.dataset["highlight"] = "false";
-			div.appendChild(img);
-			this.PLAYER_TABLE.set(i, { img: img });
-			HTMLElements.players.appendChild(div);
-		})
+			icdiv.appendChild(img);
+			
+			const span = document.createElement("span");
+			span.innerHTML = "test";
+			div.appendChild(span);
+
+			playerIconHTMLElements.push(icdiv);
+		});
 
 		// cards in board
 		HTMLElements.cards.innerHTML = "";
@@ -146,14 +174,18 @@ class GameDisplayer extends ConsolePrinter {
 		this.renderHumanHands();
 	}
 
+	onPlayerWon(player: number, rank: number): void {
+		super.onPlayerWon(player, rank);
+		this.renderPlayers();
+	}
+
 	onHumanSelectedNextCard() {
 		this.renderCards();
 		this.renderHumanHands();
 	}
 	
 	renderPlayers() {
-		this.board.getPlayers().forEach((_, i) =>
-			getPlayerHTMLElement(i).img.dataset["highlight"] = `${(i === this.board.getCurrentTurnNumber())}`);
+		playerIconHTMLElements.forEach((e, i) => e.dataset["highlight"] = `${(i === this.board.getCurrentTurnNumber())}`);
 	}
 
 	renderCards() {
@@ -190,6 +222,8 @@ class GameDisplayer extends ConsolePrinter {
 				img.dataset["status"] = "disabled";
 			else if (human.getCardAboutToPlace() === h)
 				img.dataset["status"] = "selected";
+			else
+				img.dataset["status"] = "unselected";
 			HTMLElements.humanHands.appendChild(img);
 			humanHandHTMLElements.push({ img: img, card: h });
 		}
@@ -201,7 +235,7 @@ class GameDisplayer extends ConsolePrinter {
  * Board
  */
 const board = new Board(new Settings({
-	minComputerThinkingTime: 500,
+	minComputerThinkingTime: 200,
 	humanClassConstructor: (board: Board) => new Human(board),
 	gameProceedingListenerConstructor: (board: Board) => new GameDisplayer(board)
 }));

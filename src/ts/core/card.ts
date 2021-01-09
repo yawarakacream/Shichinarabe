@@ -79,7 +79,7 @@ export class CardContainer {
 		this.cards = [...this.jokers, ...Array.from(this.basicCards.values()).flat()]
 	}
 
-	getBasicCard = (type: BasicCardType, number: number) => this.basicCards.get(type)[number];
+	getBasicCard = (type: BasicCardType, number: number) => this.basicCards.get(type)![number];
 	getAllCards = () => this.cards;
 
 }
