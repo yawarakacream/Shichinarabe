@@ -9,10 +9,10 @@ export type Rank = number | undefined;
 
 export default class Board {
 
-    private readonly settings: Settings;
-    private readonly cardContainer: CardContainer;
+    readonly settings: Settings;
+    readonly cardContainer: CardContainer;
 
-    private readonly proceedingListener: GameProceedingListener;
+    readonly gpListener: GameProceedingListener;
 
     private readonly rows: Map<BasicCardType, Row>;
 
@@ -28,8 +28,8 @@ export default class Board {
 
         this.rows = new Map(basicCardTypes.map((t) => [t, new Row(t)]));
 
-        this.players = utility.newArray(this.getSettings().computers, _ => new Computer(this));
-        const hcc = this.getSettings().humanClassConstructor;
+        this.players = utility.newArray(this.settings.computers, _ => new Computer(this));
+        const hcc = this.settings.humanClassConstructor;
         if (hcc)
             this.players = [hcc(this), ...this.players];
         
@@ -39,25 +39,25 @@ export default class Board {
 
         // 手札を配布
         const stocks = utility.shuffleArray([...this.cardContainer.getAllCards()]
-            .filter(c => !this.getSettings().initialCards.some(d => this.cardContainer.getBasicCard(d.type, d.index) === c)));
+            .filter(c => !this.settings.initialCards.some(d => this.cardContainer.getBasicCard(d.type, d.index) === c)));
         for (let i = 0; i < stocks.length; i++)
             this.getPlayer(i % this.players.length).addCardIntoHands(stocks[i]);
         
         // 初期カードの配置
-        for (const e of this.getSettings().initialCards)
+        for (const e of this.settings.initialCards)
             this.placeCard(e.type, e.index, this.cardContainer.getBasicCard(e.type, e.index), false);
         
-        this.proceedingListener = this.getSettings().gameProceedingListenerConstructor(this);
+        this.gpListener = this.settings.gameProceedingListenerConstructor(this);
     }
 
     start() {
         this.proceedGame();
-        this.proceedingListener.onGameStarted();
+        this.gpListener.onGameStarted();
     }
 
     end(): void {
         this.turn = undefined;
-        this.proceedingListener.onGameEnded();
+        this.gpListener.onGameEnded();
     }
     
     async proceedGame(): Promise<void> {
@@ -66,12 +66,12 @@ export default class Board {
 
         if (action !== "PASS" && this.canPlace(action.type, action.index, action.card)) {
             const prev = this.placeCard(action.type, action.index, action.card);
-            if (prev && this.getSettings().giveBackJoker)
+            if (prev && this.settings.giveBackJoker)
                 player.addCardIntoHands(prev);
             player.removeCardFromHands(action.card);
         }
         
-        this.proceedingListener.onBoardChanged();
+        this.gpListener.onBoardChanged();
         
         /*
          * 手札がなくなった場合、勝ち抜け
@@ -99,7 +99,7 @@ export default class Board {
             return this.end();
         }
 
-        this.proceedingListener.onTurnEnded();
+        this.gpListener.onTurnEnded();
 
         return this.proceedGame();
     }
@@ -114,12 +114,6 @@ export default class Board {
     isEnded = () => this.turn === undefined;
 
     getCurrentTurnPlayer = () => this.getPlayer(this.turn!);
-
-    getSettings = () => this.settings;
-
-    getCardContainer = () => this.cardContainer;
-
-    getProceedingListener = () => this.proceedingListener;
 
     getRow = (type: BasicCardType) => this.rows.get(type)!;
 
@@ -142,7 +136,7 @@ export default class Board {
 
     setRank(player: number, rank: Rank) {
         this.ranks[player] = rank;
-        this.getProceedingListener().onPlayerWon(player, rank);
+        this.gpListener.onPlayerWon(player, rank);
     }
 
     getLastRank = () => this.lastRank;

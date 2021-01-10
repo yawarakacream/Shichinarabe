@@ -58,7 +58,7 @@ class Human extends Player {
                 const el = HTMLContainer.humanHands.find(e => e.img === ev.target);
                 if (el && this.aboutToPlace !== el.card) {
                     this.aboutToPlace = el.card;
-                    this.board.getProceedingListener().onHumanSelectedNextCard();
+                    this.board.gpListener.onHumanSelectedNextCard();
                 }
             });
 
@@ -95,12 +95,14 @@ class GameDisplayer extends ConsolePrinter {
         super(board);
 
         HTMLContainer.getCardElement = (type: BasicCardType, index: number) => this.CARD_TABLE.get(type)![index];
-
+        
         HTMLContainer.playerIcons = [];
         HTMLContainer.computerHandsContainer = [];
 
         // human
-        if (this.board.getSettings().humanClassConstructor) {
+        HTMLContainer.humanIcon.innerHTML = "";
+        HTMLContainer.pass.innerHTML = "";
+        if (this.board.settings.humanClassConstructor) {
             const div = document.createElement("div");
             div.classList.add("shichinarabe-player-icon-container");
 
@@ -118,7 +120,6 @@ class GameDisplayer extends ConsolePrinter {
 
         // computers
         HTMLContainer.computers.innerHTML = "";
-        
         this.board.getPlayers().filter(p => p instanceof Computer).forEach((c, i) => {
             const div = document.createElement("div");
             div.classList.add("shichinarabe-computer");
@@ -150,7 +151,7 @@ class GameDisplayer extends ConsolePrinter {
             for (const n of cardNumbers) {
                 const td = document.createElement("td");
                 const img = document.createElement("img");
-                img.setAttribute("src", this.board.getCardContainer().getBasicCard(t, n).getImagePath());
+                img.setAttribute("src", this.board.cardContainer.getBasicCard(t, n).getImagePath());
                 td.appendChild(img);
 
                 td.dataset["display"] = "none";
@@ -231,7 +232,7 @@ class GameDisplayer extends ConsolePrinter {
     }
 
     renderHumanHands() {
-        if (this.board.getSettings().humanClassConstructor === undefined)
+        if (this.board.settings.humanClassConstructor === undefined)
             return;
         
         const human = this.board.getPlayer(0) as Human;
@@ -283,10 +284,15 @@ class GameDisplayer extends ConsolePrinter {
 /*
  * Board
  */
-const board = new Board(new Settings({
-    minComputerThinkingTime: 200,
-    humanClassConstructor: (board: Board) => new Human(board),
-    gameProceedingListenerConstructor: (board: Board) => new GameDisplayer(board)
-}));
+let board;
+const startShichinarabe = () => {
+    board = new Board(new Settings({
+        minComputerThinkingTime: 200,
+        humanClassConstructor: (board: Board) => new Human(board),
+        gameProceedingListenerConstructor: (board: Board) => new GameDisplayer(board)
+    }));
+    board.start();
+};
 
-board.start();
+startShichinarabe();
+
