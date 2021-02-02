@@ -74,7 +74,7 @@ export class CardContainer {
     private readonly cards: Card[];
 
     constructor(board: Board) {
-        this.jokers = utility.newArray(board.getSettings().jorkers, _ => new Joker());
+        this.jokers = utility.newArray(board.settings.jorkers, _ => new Joker());
         this.basicCards = new Map(basicCardTypes.map(t => [t, cardNumbers.map((i) => new BasicCard(t, i))]));
         this.cards = [...this.jokers, ...Array.from(this.basicCards.values()).flat()]
     }

@@ -54,7 +54,7 @@ export class Computer extends Player {
         if (this.isHandEmpty())
             throw new Error("$hand is empty");
 
-        await utility.awaitSleep(this.board.getSettings().minComputerThinkingTime);
+        await utility.awaitSleep(this.board.settings.minComputerThinkingTime);
         
         const candidates = utility.shuffleArray(this.getCandidatePoints());
         return candidates.length == 0 ? "PASS" : candidates[0];

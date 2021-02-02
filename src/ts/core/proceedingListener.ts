@@ -64,7 +64,7 @@ export class ConsolePrinter extends GameProceedingListener {
     
     private printPlayerHands(): void {
         let str = "====[Player Hands]====";
-        if (this.board.getSettings().humanClassConstructor !== undefined)
+        if (this.board.settings.humanClassConstructor !== undefined)
             str += "\nHM: " + this.board.getPlayer(0).toString();
         console.log(this.board.getPlayers().filter(p => p instanceof Computer)
             .reduce((acc, v, i) => `${acc}\nC${i}: ${v.toString()}`, str));
