@@ -1,10 +1,6 @@
 /*
  * root
  */
-body {
-	background-image: url("./img/background.png");
-	background-size: 24px;
-}
 
 #shichinarabe-root {
 	display: flex;
